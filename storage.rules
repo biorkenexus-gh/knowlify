@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    function role() { return request.auth.token.role; }
+    function isTeacher() { return isSignedIn() && (role() == 'teacher' || role() == 'admin'); }
+    function isAdmin() { return isSignedIn() && role() == 'admin'; }
+    function under(maxMb) { return request.resource.size < maxMb * 1024 * 1024; }
+
+    // Course cover images — public read, teacher/admin write. <= 5 MB.
+    match /covers/{courseId}/{file=**} {
+      allow read: if true;
+      allow write: if isTeacher()
+        && under(5)
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Lesson content (PDFs, videos, etc.) — read by signed-in users, write by teachers/admins.
+    // PDFs capped at 25 MB, videos at 250 MB.
+    match /content/{courseId}/{file=**} {
+      allow read: if isSignedIn();
+      allow write: if isTeacher()
+        && (
+          (request.resource.contentType.matches('application/pdf') && under(25))
+          || (request.resource.contentType.matches('video/.*') && under(250))
+          || (request.resource.contentType.matches('image/.*') && under(5))
+          || (request.resource.contentType.matches('text/.*') && under(5))
+        );
+    }
+
+    // User avatars — owner writes, everyone reads. <= 2 MB.
+    match /avatars/{userId}/{file=**} {
+      allow read: if true;
+      allow write: if isSignedIn()
+        && request.auth.uid == userId
+        && under(2)
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Any other path: admin-only
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

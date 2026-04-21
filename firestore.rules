@@ -1,0 +1,155 @@
+rules_version = '2';
+
+// Knowlify Firestore Security Rules
+//
+// Core invariants:
+//   - Clients NEVER write to: transactions, leaderboard, users.points, users.coins,
+//     users.role, attempts.score, attempts.passed, attempts.pointsAwarded.
+//     These are written exclusively by Cloud Functions via Admin SDK.
+//   - Admin role is read from the custom claim `request.auth.token.role == 'admin'`,
+//     set by the `setUserRole` Cloud Function.
+//   - Students can read their own private docs; teachers can write their own content;
+//     admins can read anything.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function uid() {
+      return request.auth.uid;
+    }
+    function role() {
+      return request.auth.token.role;
+    }
+    function isAdmin() {
+      return isSignedIn() && role() == 'admin';
+    }
+    function isTeacher() {
+      return isSignedIn() && (role() == 'teacher' || role() == 'admin');
+    }
+    function isOwner(userId) {
+      return isSignedIn() && uid() == userId;
+    }
+    // Only the listed client-safe fields may change in this write.
+    function onlyChanged(allowed) {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(allowed);
+    }
+
+    // ---------- users ----------
+    // Users can read their own doc + admins can read all. Clients may update
+    // displayName / photoURL only; points/coins/role are CF-only.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if false; // created by onUserCreate CF
+      allow update: if isOwner(userId)
+        && onlyChanged(['displayName', 'photoURL', 'updatedAt']);
+      allow delete: if false; // deletion via adminDeleteUser CF
+    }
+
+    // ---------- categories ----------
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ---------- courses ----------
+    // Public can read published courses; authors + admins read drafts.
+    match /courses/{courseId} {
+      allow read: if resource.data.published == true
+        || (isSignedIn() && resource.data.authorId == uid())
+        || isAdmin();
+      allow create: if isTeacher()
+        && request.resource.data.authorId == uid();
+      allow update: if isAdmin()
+        || (isTeacher() && resource.data.authorId == uid());
+      allow delete: if isAdmin();
+
+      // Lessons — subcollection
+      match /lessons/{lessonId} {
+        allow read: if get(/databases/$(database)/documents/courses/$(courseId)).data.published == true
+          || (isSignedIn() && get(/databases/$(database)/documents/courses/$(courseId)).data.authorId == uid())
+          || isAdmin();
+        allow write: if isAdmin()
+          || (isTeacher() && get(/databases/$(database)/documents/courses/$(courseId)).data.authorId == uid());
+      }
+    }
+
+    // ---------- quizzes ----------
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn();
+      allow create: if isTeacher();
+      allow update, delete: if isAdmin() || isTeacher();
+
+      // Questions — NEVER client-readable. Answers leak otherwise.
+      // The `submitQuizAttempt` CF reads them server-side; `getQuizQuestions`
+      // strips correctIndex before returning to clients.
+      match /questions/{questionId} {
+        allow read: if isAdmin();
+        allow write: if isAdmin() || isTeacher();
+      }
+    }
+
+    // ---------- attempts ----------
+    // Clients can read their own attempts and admins can read all. Writes are
+    // CF-only because score/passed/pointsAwarded must be server-computed.
+    match /attempts/{attemptId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == uid() || isAdmin());
+      allow write: if false;
+    }
+
+    // ---------- progress ----------
+    // Owner can read/upsert their own progress. The Cloud Function trigger
+    // `awardLessonPoints` validates new completions and awards points.
+    match /progress/{progressId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == uid() || isAdmin());
+      allow create: if isSignedIn()
+        && request.resource.data.userId == uid();
+      allow update: if isSignedIn()
+        && resource.data.userId == uid()
+        && onlyChanged([
+          'completedLessonIds',
+          'percent',
+          'lastLessonId',
+          'lastAccessedAt',
+          'updatedAt'
+        ]);
+      allow delete: if isAdmin();
+    }
+
+    // ---------- bookmarks ----------
+    match /bookmarks/{bookmarkId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == uid() || isAdmin());
+      allow create: if isSignedIn()
+        && request.resource.data.userId == uid();
+      allow delete: if isSignedIn() && resource.data.userId == uid();
+      allow update: if false;
+    }
+
+    // ---------- transactions (points ledger) ----------
+    // Append-only ledger; CF-write only. Users read their own entries.
+    match /transactions/{txId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == uid() || isAdmin());
+      allow write: if false;
+    }
+
+    // ---------- leaderboard ----------
+    match /leaderboard/{periodId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---------- config ----------
+    // Admin-editable point values etc. (read by clients for display, by CFs for awarding)
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
