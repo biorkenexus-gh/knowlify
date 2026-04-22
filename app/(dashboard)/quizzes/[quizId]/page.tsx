@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { getDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { QuizIntro } from "@/components/quizzes/quiz-intro";
 import { QuizRunner } from "@/components/quizzes/quiz-runner";
 import { quizDoc } from "@/lib/firebase/firestore";
 import {
@@ -22,6 +23,7 @@ export default function QuizPage({
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -61,35 +63,36 @@ export default function QuizPage({
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">{quiz.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          Time limit: {Math.round(quiz.timeLimitSeconds / 60)} min · Passing
-          score: {quiz.passingScore}% · Reward: +{quiz.pointsReward} pts on pass
-        </p>
-      </div>
-      <QuizRunner
+  if (!started) {
+    return (
+      <QuizIntro
         quiz={quiz}
-        questions={questions}
-        onSubmit={async ({ answers, timeTakenSeconds, clientNonce }) => {
-          try {
-            const res = await callSubmitQuizAttempt({
-              quizId,
-              answers,
-              timeTakenSeconds,
-              clientNonce,
-            });
-            return res.data;
-          } catch (err) {
-            const msg =
-              err instanceof Error ? err.message : "Could not submit quiz";
-            toast.error(msg);
-            throw err;
-          }
-        }}
+        questionCount={questions.length}
+        onStart={() => setStarted(true)}
       />
-    </div>
+    );
+  }
+
+  return (
+    <QuizRunner
+      quiz={quiz}
+      questions={questions}
+      onSubmit={async ({ answers, timeTakenSeconds, clientNonce }) => {
+        try {
+          const res = await callSubmitQuizAttempt({
+            quizId,
+            answers,
+            timeTakenSeconds,
+            clientNonce,
+          });
+          return res.data;
+        } catch (err) {
+          const msg =
+            err instanceof Error ? err.message : "Could not submit quiz";
+          toast.error(msg);
+          throw err;
+        }
+      }}
+    />
   );
 }

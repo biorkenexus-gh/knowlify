@@ -1,7 +1,7 @@
 import type { Timestamp } from "firebase/firestore";
 
 export interface AttemptDoc {
-  id: string;
+  id?: string;
   userId: string;
   quizId: string;
   courseId: string | null;

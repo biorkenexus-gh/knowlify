@@ -8,7 +8,7 @@ export type TransactionType =
   | "admin_revoke";
 
 export interface TransactionDoc {
-  id: string;
+  id?: string;
   userId: string;
   type: TransactionType;
   points: number;
@@ -27,7 +27,7 @@ export interface LeaderboardEntry {
 }
 
 export interface LeaderboardDoc {
-  id: string;
+  id?: string;
   entries: LeaderboardEntry[];
   updatedAt: Timestamp;
 }

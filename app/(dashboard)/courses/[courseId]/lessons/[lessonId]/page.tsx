@@ -18,6 +18,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { toast } from "sonner";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,10 +26,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PdfViewer } from "@/components/content/pdf-viewer";
 import { VideoPlayer } from "@/components/content/video-player";
 import { MarkdownReader } from "@/components/content/markdown-reader";
+
+// PdfViewer is browser-only (pdfjs-dist touches DOM globals at import time).
+// Loading it via next/dynamic with ssr:false keeps it out of server bundles
+// and out of the Vercel build's prerender step.
+const PdfViewer = dynamic(
+  () => import("@/components/content/pdf-viewer").then((m) => m.PdfViewer),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-[700px] w-full" />,
+  }
+);
 import {
   bookmarkDoc,
   lessonDoc,
@@ -149,14 +161,15 @@ export default function LessonPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Courses", href: "/courses" },
+          { label: course.title, href: `/courses/${course.id}` },
+          { label: lesson.title },
+        ]}
+      />
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <Link
-            href={`/courses/${course.id}`}
-            className="text-sm text-muted-foreground hover:text-foreground"
-          >
-            ← {course.title}
-          </Link>
           <h1 className="text-2xl font-bold md:text-3xl">{lesson.title}</h1>
           <p className="text-sm text-muted-foreground">
             Lesson {lessonIdx + 1} of {lessons.length}

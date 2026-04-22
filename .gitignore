@@ -26,6 +26,9 @@ ui-debug.log
 .DS_Store
 Thumbs.db
 
+# Claude Code local settings (may contain tokens, personal prefs)
+.claude/
+
 # functions
 functions/lib
 functions/node_modules

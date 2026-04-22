@@ -1,17 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getDocs, orderBy, query } from "firebase/firestore";
+import { getDocs, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { SearchX } from "lucide-react";
 import { CourseCard } from "@/components/courses/course-card";
 import { CourseFilters } from "@/components/courses/course-filters";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categoriesCol } from "@/lib/firebase/firestore";
+import { categoriesCol, progressCol } from "@/lib/firebase/firestore";
 import { usePublishedCourses } from "@/lib/hooks/use-course";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { normalizeQuery } from "@/lib/utils/search-terms";
 import type { CategoryDoc } from "@/types";
 
 export default function CoursesPage() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<CategoryDoc[]>([]);
+  const [progressByCourse, setProgressByCourse] = useState<Map<string, number>>(
+    new Map()
+  );
   const [categoryId, setCategoryId] = useState("");
   const [contentType, setContentType] = useState("");
   const [rawQuery, setRawQuery] = useState("");
@@ -22,6 +29,23 @@ export default function CoursesPage() {
       setCategories(snap.docs.map((d) => d.data()));
     })();
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setProgressByCourse(new Map());
+      return;
+    }
+    const q = query(progressCol, where("userId", "==", user.uid));
+    const unsub = onSnapshot(q, (snap) => {
+      const m = new Map<string, number>();
+      snap.docs.forEach((d) => {
+        const p = d.data();
+        m.set(p.courseId, p.percent ?? 0);
+      });
+      setProgressByCourse(m);
+    });
+    return () => unsub();
+  }, [user?.uid]);
 
   const { courses, loading } = usePublishedCourses({
     categoryId: categoryId || undefined,
@@ -55,13 +79,19 @@ export default function CoursesPage() {
           ))}
         </div>
       ) : courses.length === 0 ? (
-        <div className="rounded-lg border border-dashed py-24 text-center text-muted-foreground">
-          No courses match those filters.
-        </div>
+        <EmptyState
+          icon={SearchX}
+          title="No courses match those filters"
+          description="Try clearing the category, changing the format, or searching for something else."
+        />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((c) => (
-            <CourseCard key={c.id} course={c} />
+            <CourseCard
+              key={c.id}
+              course={c}
+              progressPercent={progressByCourse.get(c.id)}
+            />
           ))}
         </div>
       )}

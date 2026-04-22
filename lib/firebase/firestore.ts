@@ -23,12 +23,15 @@ import type {
   UserDoc,
 } from "@/types";
 
-// Generic converter — strips the server side `id` field on write, attaches it on read.
-function converter<T extends { id: string }>() {
+// Generic converter — strips the synthetic `id` field on write, attaches it
+// on read from the snapshot's id (which is the canonical Firestore doc id).
+// `id` is intentionally optional on the domain types so that creates can omit
+// it; reads always populate it via `fromFirestore` below.
+function converter<T extends { id?: string }>() {
   return {
     toFirestore(value: Partial<T>) {
       const { id: _id, ...rest } = value as T;
-      return rest;
+      return rest as Record<string, unknown>;
     },
     fromFirestore(
       snapshot: QueryDocumentSnapshot,

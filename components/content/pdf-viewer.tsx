@@ -1,8 +1,9 @@
 "use client";
 
-// Thin wrapper around react-pdf. We configure the worker from the CDN so the
-// app works without a custom webpack rule for `pdf.worker.js`. Long-term, for
-// larger files we'd pre-render to images via a Cloud Function.
+// Thin wrapper around react-pdf. The pdfjs worker URL is set at module load,
+// but only inside a browser guard — Next.js prerenders client components on
+// the server during build, and pdfjs-dist references DOM globals that don't
+// exist in Node. Without this guard, `pnpm build` (and Vercel) blow up.
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -10,7 +11,9 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+if (typeof window !== "undefined") {
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+}
 
 export function PdfViewer({ src }: { src: string }) {
   const [numPages, setNumPages] = useState(0);

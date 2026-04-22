@@ -1,0 +1,13 @@
+# Don't ship these to Vercel — they're for Firebase / local tooling only.
+functions/
+scripts/
+.emulator-data/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+storage.rules
+firestore.rules
+firestore.indexes.json
+firebase.json
+.firebaserc

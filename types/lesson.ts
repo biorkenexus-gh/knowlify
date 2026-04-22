@@ -3,7 +3,7 @@ import type { Timestamp } from "firebase/firestore";
 export type LessonContentType = "pdf" | "video" | "text";
 
 export interface LessonDoc {
-  id: string;
+  id?: string;
   title: string;
   order: number;
   contentType: LessonContentType;
@@ -17,7 +17,7 @@ export interface LessonDoc {
 }
 
 export interface ProgressDoc {
-  id: string;
+  id?: string;
   userId: string;
   courseId: string;
   completedLessonIds: string[];
@@ -30,7 +30,7 @@ export interface ProgressDoc {
 }
 
 export interface BookmarkDoc {
-  id: string;
+  id?: string;
   userId: string;
   courseId: string;
   lessonId: string;

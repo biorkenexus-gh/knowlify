@@ -4,6 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import { CheckCircle2, Circle, Clock, GraduationCap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   Card,
   CardContent,
@@ -49,6 +50,12 @@ export default function CourseDetailPage({
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Courses", href: "/courses" },
+          { label: course.title },
+        ]}
+      />
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <Badge variant="secondary">{course.categoryName}</Badge>

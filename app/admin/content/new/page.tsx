@@ -10,6 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { toast } from "sonner";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -142,6 +143,13 @@ export default function NewCoursePage() {
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Admin", href: "/admin" },
+          { label: "Content", href: "/admin/content" },
+          { label: "New course" },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-bold">New course</h1>
         <p className="text-sm text-muted-foreground">

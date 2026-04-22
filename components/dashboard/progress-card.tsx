@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BookMarked } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Progress } from "@/components/ui/progress";
 import type { CourseDoc, ProgressDoc } from "@/types";
 
@@ -10,13 +12,12 @@ export function InProgressList({
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed py-12 text-center text-sm text-muted-foreground">
-        No courses in progress yet. Pick one from{" "}
-        <Link href="/courses" className="text-primary underline-offset-4 hover:underline">
-          browse
-        </Link>
-        .
-      </div>
+      <EmptyState
+        icon={BookMarked}
+        title="No courses in progress"
+        description="Browse the catalog and start your first lesson to see progress here."
+        action={{ label: "Browse courses", href: "/courses" }}
+      />
     );
   }
   return (
