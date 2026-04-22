@@ -4,7 +4,7 @@ export type ContentType = "pdf" | "video" | "text" | "mixed";
 export type CourseStatus = "draft" | "published" | "deleted";
 
 export interface CategoryDoc {
-  id?: string;
+  id: string;
   name: string;
   slug: string;
   icon: string;
@@ -12,7 +12,7 @@ export interface CategoryDoc {
 }
 
 export interface CourseDoc {
-  id?: string;
+  id: string;
   title: string;
   slug: string;
   description: string;

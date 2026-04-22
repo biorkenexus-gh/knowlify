@@ -108,7 +108,10 @@ export default function LessonPage({
         await deleteDoc(bookmarkDoc(user.uid, courseId, lessonId));
         toast.success("Bookmark removed");
       } else {
+        // id is stripped by the converter; including it here just satisfies
+        // the typed write shape. The deterministic id matches bookmarkDoc().
         await setDoc(bookmarkDoc(user.uid, courseId, lessonId), {
+          id: `${user.uid}_${courseId}_${lessonId}`,
           userId: user.uid,
           courseId,
           lessonId,

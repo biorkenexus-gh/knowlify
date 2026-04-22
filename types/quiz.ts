@@ -1,7 +1,7 @@
 import type { Timestamp } from "firebase/firestore";
 
 export interface QuizDoc {
-  id?: string;
+  id: string;
   title: string;
   courseId: string | null;
   lessonId: string | null;
@@ -15,7 +15,7 @@ export interface QuizDoc {
 
 // Stored shape (server-side only — has correctIndex)
 export interface QuestionDoc {
-  id?: string;
+  id: string;
   prompt: string;
   choices: string[];
   correctIndex: number;

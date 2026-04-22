@@ -25,9 +25,11 @@ import type {
 
 // Generic converter — strips the synthetic `id` field on write, attaches it
 // on read from the snapshot's id (which is the canonical Firestore doc id).
-// `id` is intentionally optional on the domain types so that creates can omit
-// it; reads always populate it via `fromFirestore` below.
-function converter<T extends { id?: string }>() {
+// Note: `id` on the domain types is required for READS (always populated by
+// fromFirestore). For WRITES, callers need to include any `id` that satisfies
+// the type; the converter strips it before hitting Firestore, so passing an
+// empty string or deterministic id is fine.
+function converter<T extends { id: string }>() {
   return {
     toFirestore(value: Partial<T>) {
       const { id: _id, ...rest } = value as T;
