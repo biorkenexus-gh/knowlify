@@ -16,14 +16,37 @@ import {
   type Functions,
 } from "firebase/functions";
 
+// Fallback placeholders so Firebase can `initializeApp` at build time without
+// throwing `auth/invalid-api-key`. These values are NOT valid — any runtime
+// call that hits Firebase will still fail. The point is just to let Next.js
+// prerender pages that happen to import this module without crashing the
+// whole build. Real values MUST be set via Vercel env vars for the deployed
+// app to actually work.
+const PLACEHOLDER = "MISSING_FIREBASE_ENV_VAR";
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || PLACEHOLDER,
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "missing.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || PLACEHOLDER,
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "missing.appspot.com",
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || PLACEHOLDER,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || PLACEHOLDER,
 };
+
+const isConfigured =
+  !!process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+  !!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+if (!isConfigured && typeof window !== "undefined") {
+  // eslint-disable-next-line no-console
+  console.error(
+    "[knowlify] Firebase env vars are missing. Set NEXT_PUBLIC_FIREBASE_* in " +
+      "your Vercel project settings. The app will not work until they are set."
+  );
+}
 
 const useEmulators =
   process.env.NEXT_PUBLIC_USE_EMULATORS === "true" &&
