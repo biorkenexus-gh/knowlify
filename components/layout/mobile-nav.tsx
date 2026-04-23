@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Menu, Sparkles } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -11,7 +12,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { SITE } from "@/lib/constants";
 import { NavLinks } from "./nav-links";
 
 export function MobileNav() {
@@ -33,12 +33,19 @@ export function MobileNav() {
           <Link
             href="/dashboard"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2"
+            className="inline-flex items-center"
+            aria-label="Knowlify home"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <SheetTitle className="text-lg">{SITE.name}</SheetTitle>
+            {/* Visually-hidden title for accessibility (Sheet requires one) */}
+            <SheetTitle className="sr-only">Knowlify</SheetTitle>
+            <Image
+              src="/logo.png"
+              alt="Knowlify"
+              width={300}
+              height={200}
+              className="h-10 w-auto object-contain"
+              priority
+            />
           </Link>
         </SheetHeader>
         <div className="p-4">

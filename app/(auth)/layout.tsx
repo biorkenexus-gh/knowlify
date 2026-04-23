@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { Sparkles } from "lucide-react";
-import { SITE } from "@/lib/constants";
+import { Logo } from "@/components/layout/logo";
 
 export default function AuthLayout({
   children,
@@ -9,12 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4 py-8">
-      <Link href="/" className="mb-8 flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <Sparkles className="h-5 w-5" />
-        </div>
-        <span className="text-xl font-semibold">{SITE.name}</span>
-      </Link>
+      <Logo href="/" className="mb-8 h-12 w-auto" priority />
       {children}
     </div>
   );

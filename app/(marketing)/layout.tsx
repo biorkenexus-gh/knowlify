@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SITE } from "@/lib/constants";
 
@@ -13,12 +13,7 @@ export default function MarketingLayout({
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <span className="text-lg font-semibold">{SITE.name}</span>
-          </Link>
+          <Logo href="/" className="h-9 w-auto" priority />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button variant="ghost" asChild>
