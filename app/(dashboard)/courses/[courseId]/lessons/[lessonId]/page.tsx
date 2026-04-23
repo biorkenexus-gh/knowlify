@@ -48,6 +48,7 @@ import {
 } from "@/lib/firebase/firestore";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useCourse } from "@/lib/hooks/use-course";
+import { useReadingTracker } from "@/lib/hooks/use-reading-tracker";
 import type { LessonDoc } from "@/types";
 
 export default function LessonPage({
@@ -58,6 +59,8 @@ export default function LessonPage({
   const { courseId, lessonId } = use(params);
   const { user } = useAuth();
   const { course, lessons } = useCourse(courseId);
+  // Award reading-session points every 30s of active time (max 3/lesson).
+  useReadingTracker({ courseId, lessonId, enabled: !!user?.uid });
   const [lesson, setLesson] = useState<LessonDoc | null>(null);
   const [bookmarked, setBookmarked] = useState(false);
   const [completed, setCompleted] = useState(false);

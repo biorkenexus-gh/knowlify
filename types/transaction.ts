@@ -4,6 +4,7 @@ export type TransactionType =
   | "lesson_complete"
   | "quiz_pass"
   | "reading_session"
+  | "daily_bonus"
   | "admin_grant"
   | "admin_revoke";
 

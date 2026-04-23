@@ -15,6 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { StatsGrid } from "@/components/dashboard/coins-widget";
 import { InProgressList } from "@/components/dashboard/progress-card";
 import { RecommendedList } from "@/components/dashboard/recommended-list";
+import { StreakWidget } from "@/components/dashboard/streak-widget";
+import { LevelBadge } from "@/components/dashboard/level-badge";
 import { useAuth } from "@/lib/hooks/use-auth";
 import {
   coursesCol,
@@ -28,6 +30,7 @@ const TX_LABEL: Record<TransactionDoc["type"], string> = {
   lesson_complete: "Lesson completed",
   quiz_pass: "Quiz passed",
   reading_session: "Reading session",
+  daily_bonus: "Daily bonus",
   admin_grant: "Admin grant",
   admin_revoke: "Admin revoke",
 };
@@ -149,12 +152,18 @@ export default function DashboardPage() {
       </div>
 
       {profile ? (
-        <StatsGrid
-          points={profile.points}
-          coins={profile.coins}
-          completedCourses={profile.completedCourses}
-          completedLessons={profile.completedLessons}
-        />
+        <>
+          <StatsGrid
+            points={profile.points}
+            coins={profile.coins}
+            completedCourses={profile.completedCourses}
+            completedLessons={profile.completedLessons}
+          />
+          <div className="grid gap-4 md:grid-cols-2">
+            <StreakWidget profile={profile} />
+            <LevelBadge points={profile.points} variant="card" />
+          </div>
+        </>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (

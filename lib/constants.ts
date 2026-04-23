@@ -4,8 +4,16 @@
 export const POINT_VALUES = {
   LESSON_COMPLETE: 10,
   QUIZ_PASS_BASE: 50,
-  READING_SESSION: 2, // awarded per (future) reading heartbeat
+  READING_SESSION: 2, // awarded per 30-sec reading heartbeat (max 3 per lesson)
+  DAILY_BONUS_BASE: 5, // awarded for the first daily-bonus claim
+  STREAK_7_BONUS: 10,
+  STREAK_14_BONUS: 15,
+  STREAK_30_BONUS: 25,
 } as const;
+
+// Reading-session settings (must match functions/src/shared/points.ts).
+export const MAX_READING_SESSIONS_PER_LESSON = 3;
+export const READING_HEARTBEAT_INTERVAL_MS = 30_000;
 
 export const POINTS_PER_COIN = 1; // 1 point == 1 coin in v1
 

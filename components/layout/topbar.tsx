@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LevelBadge } from "@/components/dashboard/level-badge";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
 import { ThemeToggle } from "./theme-toggle";
@@ -39,7 +40,10 @@ export function Topbar() {
         <Logo href="/dashboard" className="h-7 w-auto" />
       </div>
       <div className="flex-1" />
-      <div className="flex items-center gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-3">
+        {profile && (
+          <LevelBadge points={profile.points} className="hidden sm:inline-flex" />
+        )}
         {profile && (
           <div className="hidden items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-medium sm:flex">
             <Coins className="h-4 w-4 text-amber-500" />

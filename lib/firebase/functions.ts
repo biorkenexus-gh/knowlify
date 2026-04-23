@@ -36,3 +36,24 @@ export const callAdminDeleteContent = httpsCallable<
   { courseId: string; hardDelete?: boolean },
   { success: boolean }
 >(functions, "adminDeleteContent");
+
+export const callClaimDailyBonus = httpsCallable<
+  Record<string, never>,
+  {
+    awarded: boolean;
+    amount: number;
+    newStreak: number;
+    newBalance: number;
+    alreadyClaimed: boolean;
+  }
+>(functions, "claimDailyBonus");
+
+export const callAwardReadingPoints = httpsCallable<
+  {
+    lessonId: string;
+    courseId: string;
+    sessionIndex: number;
+    secondsRead: number;
+  },
+  { awarded: boolean; pointsAwarded: number; sessionIndex: number }
+>(functions, "awardReadingPoints");

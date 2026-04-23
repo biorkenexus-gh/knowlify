@@ -14,6 +14,10 @@ export { getQuizQuestions } from "./quizzes/getQuizQuestions";
 
 // Lessons / progress
 export { awardLessonPoints } from "./lessons/awardLessonPoints";
+export { awardReadingPoints } from "./lessons/awardReadingPoints";
+
+// Users — daily bonus / streaks
+export { claimDailyBonus } from "./users/claimDailyBonus";
 
 // Admin
 export { setUserRole } from "./admin/setUserRole";

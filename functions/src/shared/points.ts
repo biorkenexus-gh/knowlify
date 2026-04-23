@@ -6,7 +6,17 @@ export const POINT_VALUES = {
   LESSON_COMPLETE: 10,
   QUIZ_PASS_BASE: 50,
   READING_SESSION: 2,
+  DAILY_BONUS_BASE: 5,
+  // Streak bonuses are ADDED to DAILY_BONUS_BASE based on currentStreak.
+  STREAK_7_BONUS: 10, // applied when streak >= 7
+  STREAK_14_BONUS: 15, // applied when streak >= 14
+  STREAK_30_BONUS: 25, // applied when streak >= 30
 } as const;
+
+// Cap on reading-session points awarded per lesson (sessionIndex 0..N-1).
+export const MAX_READING_SESSIONS_PER_LESSON = 3;
+// Minimum elapsed seconds before a reading session can be claimed.
+export const MIN_READING_SECONDS = 30;
 
 export const POINTS_PER_COIN = 1;
 
@@ -14,6 +24,7 @@ export type LedgerType =
   | "lesson_complete"
   | "quiz_pass"
   | "reading_session"
+  | "daily_bonus"
   | "admin_grant"
   | "admin_revoke";
 

@@ -24,6 +24,11 @@ export const onUserCreate = beforeUserCreated(async (event) => {
       coins: 0,
       completedCourses: 0,
       completedLessons: 0,
+      // Earning system v2 — streak fields, all CF-write only.
+      lastBonusClaimedDate: null,
+      currentStreak: 0,
+      longestStreak: 0,
+      totalBonusesClaimed: 0,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     },

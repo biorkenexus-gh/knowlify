@@ -40,7 +40,9 @@ service cloud.firestore {
 
     // ---------- users ----------
     // Users can read their own doc + admins can read all. Clients may update
-    // displayName / photoURL only; points/coins/role are CF-only.
+    // displayName / photoURL only. CF-only fields: points, coins, role,
+    // completedCourses, completedLessons, currentStreak, longestStreak,
+    // lastBonusClaimedDate, totalBonusesClaimed.
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if false; // created by onUserCreate CF

@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LevelBadge } from "@/components/dashboard/level-badge";
+import { StreakWidget } from "@/components/dashboard/streak-widget";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { transactionsCol, userDoc } from "@/lib/firebase/firestore";
 import { formatRelative } from "@/lib/utils/format";
@@ -111,6 +113,13 @@ export default function ProfilePage() {
           </Button>
         </CardContent>
       </Card>
+
+      {profile && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <StreakWidget profile={profile} />
+          <LevelBadge points={profile.points} variant="card" />
+        </div>
+      )}
 
       <Card>
         <CardHeader>
